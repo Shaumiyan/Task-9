@@ -1,0 +1,135 @@
+<!-- checkout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PrismKart - Checkout</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .cart-item img {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 1rem;
+    }
+    .cart-item-details {
+      flex: 1;
+      margin-left: 1rem;
+    }
+    .summary {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .btn-order {
+      background: #5e60ce;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .free-shipping {
+      color: green;
+      font-weight: bold;
+    }
+    .payment-section {
+      margin-top: 2rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Checkout Page - PrismKart</h1>
+  <div id="checkout-items"></div>
+
+  <div class="summary">
+    <p>Subtotal: ₹<span id="subtotal">0</span></p>
+    <p>Shipping: ₹<span id="shipping">0</span> <span id="shipping-badge"></span></p>
+    <p><strong>Total: ₹<span id="total">0</span></strong></p>
+    <button class="btn-order" onclick="placeOrder()">Place Order</button>
+  </div>
+
+  <div class="payment-section">
+    <h3>Payment Method</h3>
+    <label><input type="radio" name="payment" value="COD" checked> Cash on Delivery</label><br>
+    <label><input type="radio" name="payment" value="Online"> UPI / Net Banking / Card</label>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    const checkoutDiv = document.getElementById('checkout-items');
+    const subtotalEl = document.getElementById('subtotal');
+    const shippingEl = document.getElementById('shipping');
+    const totalEl = document.getElementById('total');
+    const shippingBadge = document.getElementById('shipping-badge');
+
+    function renderCart() {
+      checkoutDiv.innerHTML = "";
+      let subtotal = 0;
+      cart.forEach((item, index) => {
+        subtotal += item.price;
+        checkoutDiv.innerHTML += `
+          <div class="cart-item">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="cart-item-details">
+              <h4>${item.name}</h4>
+              <p>₹${item.price}</p>
+            </div>
+            <button onclick="removeItem(${index})">❌</button>
+          </div>
+        `;
+      });
+
+      subtotalEl.innerText = subtotal;
+      let shipping = subtotal < 500 ? 50 : 0;
+      shippingEl.innerText = shipping;
+      totalEl.innerText = subtotal + shipping;
+
+      if (shipping === 0 && subtotal > 0) {
+        shippingBadge.innerHTML = '<span class="free-shipping">(Free Shipping 🎉)</span>';
+      } else {
+        shippingBadge.innerHTML = '';
+      }
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function placeOrder() {
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+      }
+      const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+      alert(`🎉 Order placed successfully using ${paymentMethod}!`);
+      cart = [];
+      localStorage.removeItem('cart');
+      renderCart();
+    }
+
+    renderCart();
+  </script>
+</body>
+</html>
